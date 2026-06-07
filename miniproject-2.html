@@ -1,0 +1,171 @@
+  
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Playlist Manager</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#121212;color:#fff}
+header{background:#1db954;padding:15px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+input,select,button{padding:8px;border-radius:6px;border:none}
+.container{padding:20px;padding-bottom:90px}
+.song-card{display:flex;justify-content:space-between;align-items:center;background:#222;margin:10px 0;padding:12px;border-radius:10px}
+.left{display:flex;align-items:center;gap:12px}
+img{width:70px;height:70px;border-radius:8px;object-fit:cover}
+.player{position:fixed;bottom:0;left:0;right:0;background:#222;padding:10px}
+.light{background:#f5f5f5;color:#000}
+.light .song-card{background:#ddd}
+</style>
+</head>
+<body>
+<header>
+<h2>🎵 Music Playlist Manager</h2>
+<div>
+<input id="search" placeholder="Search song or singer">
+<select id="lang">
+<option value="all">All</option>
+<option>Hindi</option><option>Telugu</option><option>Tamil</option>
+</select>
+<select id="theme"><option value="dark">Dark</option><option value="light">Light</option></select>
+</div>
+</header>
+
+<div class="container">
+<h3>New Songs</h3>
+<div id="songs"></div>
+
+<h3>Favorites</h3>
+<div id="favorites"></div>
+
+<h3>Singer Playlist</h3>
+<select id="singer"><option value="all">All Singers</option></select>
+<div id="singerSongs"></div>
+</div>
+
+<div class="player"><audio id="audio" controls style="width:100%"></audio></div>
+
+<script>
+const songs=[
+{id:1,title:"Bujji Thalli",
+singer:"Javed Ali",
+movie:"Thandel",
+language:"telugu",
+image:"https://i.ytimg.com/vi/rc56WnNmLAE/maxresdefault.jpg",
+audio:"buji.mpeg"},
+{id:2,title:"Srivalli",
+singer:"Sid Sriram",
+movie:"Pushpa",
+language:"Tamil"
+,image:"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiu9urFtgmNG3WdC1f21h88CWqvY7XVXM2ZYu1AhJ7E5N46y3zTVWoBU6qVf10CqhSONhYvI8ixilXWA1x4qEWBZwV66J-OaljzjfnKcKI1rccUHc6UMWXkEHao4MAa5u5G4dyufSzlhWmeZ8jHwLAKK2M5_M2pMuHvchar6x5DBn1QOFK4958RNVf2DA/w1200-h630-p-k-no-nu/Srivalli%20Songs%20Lyrics.jpg",
+audio:"srivalli.mpeg"},
+{id:3,title:"Nenu Nuvvantu",
+singer:"Naresh lyer",
+movie:"Orange",
+language:"Telugu",
+image:"https://static.moviecrow.com/gallery/20230331/214058-Orange%20Ram%20Charan%20Genelia.jpg",
+audio:"orange.mpeg"},
+{id:4,title:"kalavathi",
+singer:"Sid Sriram",
+movie:"Sarkaru Varri Patta",
+language:"Telugu",
+image:"https://somethingup.net/wp-content/uploads/2023/06/The-Origin-of-Sarkar-Vari-Pata-Naa-Songs.jpg",
+audio:"mama mahesha.mpeg"},
+{id:5,title:"Samajavaragamana",
+singer:"sid Sriram ",
+movie:"Ala Vaikunthapurramuloo",
+language:"Telugu",
+image:"https://sp.yimg.com/ib/th/id/OIP.UF0pSIfcgdbf4s1haqctHAHaKk?pid=Api&w=148&h=148&c=7&dpr=2&rs=1",
+audio:"samajavaragamana.mpeg"},
+{id:6,title:"Nijam Nee Chebutunna",
+singer:"Sid Sriram",
+movie:"Ooru Peru Bhairavakona",
+language:"Telugu",
+image:"https://newsroompost.com/wp-content/uploads/2024/02/Pic-2024-02-21T135748.765.jpg",
+audio:"nijam.mpeg"},
+{id:7,title:"Undipova",
+singer:"Spoorthi Jithender",
+movie:"Savarri",
+language:"Telugu",
+image:"https://cdn.123telugu.com/content/wp-content/uploads/2020/02/Savaari-m.jpg",
+audio:"naa loo na nuvay.mpeg"},
+{id:8,title:"Prema Velluva",
+singer:"Anurag Kulkarni",
+movie:"HIT",
+language:"Telugu",
+image:"https://wallpapercave.com/wp/wp15337388.webp",
+audio:"prema velluva.mpeg"},
+{id:9,title:"Inkem Inkem Kaavaale",
+singer:"Sid Sriram",
+movie:"Geetha Govindam",
+language:"Telugu",
+image:"https://images.justwatch.com/poster/321539321/s718/geetha-govindam.jpg",
+audio:"inkem inkem kavaley.mpeg"},
+{id:10,title:"kesariya",
+singer:"Arijit Singhi",
+movie:"Brahmastra",
+language:"Hindi",
+image:"https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/7F7EDF5518834D73FAD44FBF886C65E0F9655829F03A785A4819DAD1D6225FEC/scale?width=1200&amp;aspectRatio=1.78&amp;format=webp",
+audio:"Bramhrastram.mpeg"},
+{id:11,title:"boom boom",
+singer:"Leon James",
+movie:"Dude",
+language:"Tamil",
+image:"https://victorycinema.in/wp-content/uploads/2025/02/dragon-vc-square-8.jpg",
+audio:"Boom Boom.mpeg"},
+{id:12,title:"Bhoom Bhaddhal",
+singer:"Mangli",
+movie:"Krack",
+language:"Telugu",
+image:"https://tse1.mm.bing.net/th/id/OIP.8dfc8Mzr7lt3EF876h1-dQHaEc?pid=Api&P=0&h=180",
+audio:"bomom badalu.mpeg"},
+{id:13,title:"Nee Kannu Neeli Samudram",
+singer:"Javad Ali",
+movie:"Uppenna",
+language:"Telugu",
+image:"https://files.prokerala.com/movies/pics/800/uppena-movie-2nd-single-video-song-posters-113180.jpg",
+audio:"nee kannu neeli samudram.mpeg"}
+];
+
+let fav=[];
+const songsDiv=document.getElementById('songs');
+const favDiv=document.getElementById('favorites');
+
+function render(list){
+songsDiv.innerHTML='';
+list.forEach(s=>{
+songsDiv.innerHTML+=`<div class="song-card"><div class="left"><img src="${s.image}"><div><b>${s.title}</b><br>🎤 ${s.singer}<br>🎬 ${s.movie}<br>${s.language}</div></div><div><button onclick="play('${s.audio}')">Play</button><button onclick="addFav(${s.id})">❤️</button></div></div>`;
+});
+}
+function play(a){audio.src=a;audio.play();}
+function addFav(id){let s=songs.find(x=>x.id===id); if(!fav.find(x=>x.id===id)){fav.push(s);showFav();}}
+function showFav(){favDiv.innerHTML=fav.map(s=>`<div class="song-card"><div class="left"><img src="${s.image}"><div>${s.title} - ${s.singer}</div></div></div>`).join('');}
+
+render(songs);
+
+search.oninput=e=>{
+let v=e.target.value.toLowerCase();
+render(songs.filter(s=>s.title.toLowerCase().includes(v)||s.singer.toLowerCase().includes(v)));
+};
+
+lang.onchange=e=>{
+let v=e.target.value;
+render(v==="all"?songs:songs.filter(s=>s.language===v));
+};
+
+[...new Set(songs.map(s=>s.singer))].forEach(n=>{
+let o=document.createElement('option');o.textContent=n;o.value=n;singer.appendChild(o);
+});
+
+singer.onchange=e=>{
+let v=e.target.value;
+let arr=v==="all"?songs:songs.filter(s=>s.singer===v);
+document.getElementById('singerSongs').innerHTML=arr.map(s=>`<div class="song-card">${s.title} - ${s.singer}</div>`).join('');
+};
+
+theme.onchange=e=>{
+document.body.className=e.target.value==="light"?"light":"";
+};
+</script>
+</body>
+</html>
